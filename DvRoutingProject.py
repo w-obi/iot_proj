@@ -481,7 +481,7 @@ def rx_thread():
 # THREAD 2: WORKER THREAD (Transmissions & Relays)
 # =====================================================================
 
-def encrypt_and_send(header, inner, is_adv=False):
+def encrypt_and_send(inner, is_adv=False):
     """Utility to handle encryption, error injection, and actual transmission."""
     global CORRUPT_NEXT_TX
     ctr = next_tx_counter()
@@ -504,9 +504,6 @@ def encrypt_and_send(header, inner, is_adv=False):
     
     if is_adv:
         count_stat("adv_sent")
-    else:
-        # Caller handles relay vs origination stat counting
-        pass
         
     try:
         e.send(BCAST, packet, False)
@@ -519,7 +516,7 @@ def send_adv():
         this_parent_id = parent_id
         this_hop = my_hop
     inner = bytes([PTYPE_ADV, BCAST_ID, DEVICE_ID, this_hop, this_parent_id])
-    encrypt_and_send(None, inner, is_adv=True)
+    encrypt_and_send(inner, is_adv=True)
 
 def relay_msg():
     with lock:
@@ -543,7 +540,7 @@ def relay_msg():
         forward[1] = parent
         
     count_stat("data_relayed")
-    encrypt_and_send(None, forward, is_adv=False)
+    encrypt_and_send(forward, is_adv=False)
 
 def send_data():
     global seq
@@ -569,7 +566,7 @@ def send_data():
 
     inner = struct.pack(">BBBHBB", PTYPE_DATA, dest, DEVICE_ID, my_seq, INITIAL_TTL - 1, code) + payload
     count_stat("data_originated")
-    encrypt_and_send(None, inner, is_adv=False)
+    encrypt_and_send(inner, is_adv=False)
 
 def tx_thread():                     
     next_adv = time.ticks_ms()
