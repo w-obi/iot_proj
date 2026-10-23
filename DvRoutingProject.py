@@ -604,7 +604,7 @@ def acquire_sensor_data(code):
     elif code == 4: # Smoke: 0/1
         return struct.pack(">B", 0) 
         
-    elif code == 5: # Accel: Magnitude average over 2 seconds
+    elif code == 5: # Accelerometer: Magnitude average over 2 seconds
         accel_sum = 0.0
         # 10 samples over 2 seconds (200ms per sample)
         for _ in range(10):
